@@ -1,112 +1,146 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Simulado educoins</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity Web Player | Simulado educoins</title>
 
-    <!-- REMOVE A LOGO DO LOADING -->
-    <style>
-      #unity-logo { display: none; }
-    </style>
-  </head>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
 
-  <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width="1920" height="1080" tabindex="-1"></canvas>
+  <!-- REMOVE A LOGO DO LOADING -->
+  <style>
+    #unity-logo { display: none; }
+  </style>
+</head>
 
-      <div id="unity-loading-bar">
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
+<body>
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" width="1920" height="1080" tabindex="-1"></canvas>
 
-      <div id="unity-warning"></div>
-
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Simulado educoins</div>
+    <div id="unity-loading-bar">
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
       </div>
     </div>
 
-    <script>
-      var canvas = document.querySelector("#unity-canvas");
+    <div id="unity-warning"></div>
 
-      // ✅ O PLUGIN SimpleFileBrowserForWebGL PROCURA POR ISSO:
-      var gameInstance = null;
+    <div id="unity-footer">
+      <div id="unity-logo-title-footer"></div>
+      <div id="unity-fullscreen-button"></div>
+      <div id="unity-build-title">Simulado educoins</div>
+    </div>
+  </div>
 
-      function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
+  <script>
+    var canvas = document.querySelector("#unity-canvas");
+
+    // ✅ O PLUGIN SimpleFileBrowserForWebGL PROCURA POR ISSO
+    var gameInstance = null;
+
+    function unityShowBanner(msg, type) {
+      var warningBanner = document.querySelector("#unity-warning");
+
+      function updateBannerVisibility() {
+        warningBanner.style.display =
+          warningBanner.children.length ? "block" : "none";
       }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/EducoinsSimulado.loader.js";
-      var config = {
-        arguments: [],
-        dataUrl: buildUrl + "/EducoinsSimulado.data.unityweb",
-        frameworkUrl: buildUrl + "/EducoinsSimulado.framework.js.unityweb",
-        codeUrl: buildUrl + "/EducoinsSimulado.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Simulado educoins",
-        productVersion: "1.0",
-        showBanner: unityShowBanner,
-        devicePixelRatio: window.devicePixelRatio
-      };
+      var div = document.createElement("div");
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
+      if (type == "error") {
+        div.style = "background: red; padding: 10px;";
       } else {
-        canvas.style.width = "1920px";
-        canvas.style.height = "1080px";
+        if (type == "warning") {
+          div.style = "background: yellow; padding: 10px;";
+        }
+
+        setTimeout(function () {
+          warningBanner.removeChild(div);
+          updateBannerVisibility();
+        }, 5000);
       }
 
-      document.querySelector("#unity-loading-bar").style.display = "block";
+      updateBannerVisibility();
+    }
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
-        }).then((unityInstance) => {
-          document.querySelector("#unity-loading-bar").style.display = "none";
-          document.querySelector("#unity-fullscreen-button").onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/EducoinsSimulado.loader.js";
 
-          // ✅ AQUI É O PONTO QUE RESOLVE O ERRO DO PLUGIN:
-          gameInstance = unityInstance;
+    var config = {
+      arguments: [],
+      dataUrl: buildUrl + "/EducoinsSimulado.data.unityweb",
+      frameworkUrl: buildUrl + "/EducoinsSimulado.framework.js.unityweb",
+      codeUrl: buildUrl + "/EducoinsSimulado.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "Simulado educoins",
+      productVersion: "1.0",
+      showBanner: unityShowBanner,
+      devicePixelRatio: window.devicePixelRatio
+    };
 
-        }).catch((message) => {
-          alert(message);
+    // 📱 Mobile config
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      var meta = document.createElement("meta");
+      meta.name = "viewport";
+      meta.content =
+        "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+      document.getElementsByTagName("head")[0].appendChild(meta);
+
+      document.querySelector("#unity-container").className = "unity-mobile";
+      canvas.className = "unity-mobile";
+    } 
+    // 💻 Desktop
+    else {
+      canvas.style.width = "1920px";
+      canvas.style.height = "1080px";
+    }
+
+    document.querySelector("#unity-loading-bar").style.display = "block";
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+
+    script.onload = () => {
+
+      createUnityInstance(canvas, config, (progress) => {
+
+        document.querySelector("#unity-progress-bar-full").style.width =
+          (100 * progress) + "%";
+
+      }).then((unityInstance) => {
+
+        document.querySelector("#unity-loading-bar").style.display = "none";
+
+        // ✅ TENTA FULLSCREEN AUTOMÁTICO
+        unityInstance.SetFullscreen(1);
+
+        document.querySelector("#unity-fullscreen-button").onclick = () => {
+          unityInstance.SetFullscreen(1);
+        };
+
+        // ✅ Plugin compatibility
+        gameInstance = unityInstance;
+
+        // ✅ Fallback: força fullscreen no primeiro clique
+        canvas.addEventListener("click", () => {
+          if (!document.fullscreenElement && gameInstance) {
+            gameInstance.SetFullscreen(1);
+          }
         });
-      };
 
-      document.body.appendChild(script);
-    </script>
-  </body>
+      }).catch((message) => {
+
+        alert(message);
+
+      });
+    };
+
+    document.body.appendChild(script);
+  </script>
+</body>
 </html>
