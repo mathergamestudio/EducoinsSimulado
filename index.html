@@ -1,146 +1,214 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="pt-br">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Educoins Avaliação | AIA </title>
+
+  <title>Educoins Avaliação | AIA</title>
 
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
 
-  <!-- REMOVE A LOGO DO LOADING -->
+  <!-- Remove logo do loading -->
   <style>
     #unity-logo { display: none; }
   </style>
 </head>
 
 <body>
-  <div id="unity-container" class="unity-desktop">
-    <canvas id="unity-canvas" width="1920" height="1080" tabindex="-1"></canvas>
 
-    <div id="unity-loading-bar">
-      <div id="unity-progress-bar-empty">
-        <div id="unity-progress-bar-full"></div>
-      </div>
-    </div>
+<div id="unity-container" class="unity-desktop">
 
-    <div id="unity-warning"></div>
+  <canvas id="unity-canvas" width="1920" height="1080" tabindex="-1"></canvas>
 
-    <div id="unity-footer">
-      <div id="unity-logo-title-footer"></div>
-      <div id="unity-fullscreen-button"></div>
-      <div id="unity-build-title">Educoins</div>
+  <div id="unity-loading-bar">
+    <div id="unity-progress-bar-empty">
+      <div id="unity-progress-bar-full"></div>
     </div>
   </div>
 
-  <script>
-    var canvas = document.querySelector("#unity-canvas");
+  <div id="unity-warning"></div>
 
-    // ✅ O PLUGIN SimpleFileBrowserForWebGL PROCURA POR ISSO
-    var gameInstance = null;
+  <div id="unity-footer">
+    <div id="unity-logo-title-footer"></div>
+    <div id="unity-fullscreen-button"></div>
+    <div id="unity-build-title">Educoins</div>
+  </div>
 
-    function unityShowBanner(msg, type) {
-      var warningBanner = document.querySelector("#unity-warning");
+</div>
 
-      function updateBannerVisibility() {
-        warningBanner.style.display =
-          warningBanner.children.length ? "block" : "none";
-      }
+<script>
+/* =====================================================
+   🔴 CONFIGURAÇÃO RÁPIDA — ALTERA SÓ AQUI
+===================================================== */
 
-      var div = document.createElement("div");
-      div.innerHTML = msg;
-      warningBanner.appendChild(div);
+var BUILD_FOLDER = "Build";
 
-      if (type == "error") {
-        div.style = "background: red; padding: 10px;";
-      } else {
-        if (type == "warning") {
-          div.style = "background: yellow; padding: 10px;";
-        }
+/*
+ 👉 MUDE ISSO A CADA BUILD:
+    v1, v2, v3, v4...
+*/
+var BUILD_VERSION = "v4";   // 🔥 <<< ALTERA AQUI SEMPRE
 
-        setTimeout(function () {
-          warningBanner.removeChild(div);
-          updateBannerVisibility();
-        }, 5000);
-      }
 
+/*
+ 👉 COPIE OS NOMES DA PASTA /Build/
+*/
+var LOADER_FILE    = "1c26efb05fb937b77d9ac22444b301ec.loader.js";
+var DATA_FILE      = "fe08d73d65422af664bee18f1fe6727e.data.unityweb";
+var FRAMEWORK_FILE = "f47c5c9555d56999beebb85ed85a320c.framework.js.unityweb";
+var WASM_FILE      = "765144241da8fdcbc06c6ee67f08cd67.wasm.unityweb";
+
+/* ===================================================== */
+
+var canvas = document.querySelector("#unity-canvas");
+
+// Compatibilidade plugin
+var gameInstance = null;
+
+
+// Banner Unity
+function unityShowBanner(msg, type) {
+
+  var warningBanner = document.querySelector("#unity-warning");
+
+  function updateBannerVisibility() {
+    warningBanner.style.display =
+      warningBanner.children.length ? "block" : "none";
+  }
+
+  var div = document.createElement("div");
+  div.innerHTML = msg;
+  warningBanner.appendChild(div);
+
+  if (type == "error") {
+    div.style = "background: red; padding: 10px;";
+  }
+  else {
+
+    if (type == "warning") {
+      div.style = "background: yellow; padding: 10px;";
+    }
+
+    setTimeout(function () {
+      warningBanner.removeChild(div);
       updateBannerVisibility();
-    }
+    }, 5000);
+  }
 
-    var buildUrl = "Build";
-    var loaderUrl = buildUrl + "/EducoinsSimulado.loader.js";
+  updateBannerVisibility();
+}
 
-    var config = {
-      arguments: [],
-      dataUrl: buildUrl + "/EducoinsSimulado.data.unityweb",
-      frameworkUrl: buildUrl + "/EducoinsSimulado.framework.js.unityweb",
-      codeUrl: buildUrl + "/EducoinsSimulado.wasm.unityweb",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "DefaultCompany",
-      productName: "Simulado educoins",
-      productVersion: "1.0",
-      showBanner: unityShowBanner,
-      devicePixelRatio: window.devicePixelRatio
+
+// Config Unity
+var config = {
+
+  arguments: [],
+
+  // 🔥 Cache-buster em TODOS
+  dataUrl:
+    BUILD_FOLDER + "/" + DATA_FILE + "?v=" + BUILD_VERSION,
+
+  frameworkUrl:
+    BUILD_FOLDER + "/" + FRAMEWORK_FILE + "?v=" + BUILD_VERSION,
+
+  codeUrl:
+    BUILD_FOLDER + "/" + WASM_FILE + "?v=" + BUILD_VERSION,
+
+  streamingAssetsUrl: "StreamingAssets",
+
+  companyName: "DefaultCompany",
+  productName: "Simulado educoins",
+  productVersion: BUILD_VERSION,
+
+  showBanner: unityShowBanner,
+
+  devicePixelRatio: window.devicePixelRatio
+};
+
+
+// 📱 Mobile
+if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+
+  var meta = document.createElement("meta");
+
+  meta.name = "viewport";
+
+  meta.content =
+    "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+
+  document.getElementsByTagName("head")[0].appendChild(meta);
+
+  document.querySelector("#unity-container").className = "unity-mobile";
+  canvas.className = "unity-mobile";
+}
+
+
+// 💻 Desktop
+else {
+
+  canvas.style.width = "1920px";
+  canvas.style.height = "1080px";
+}
+
+
+// Loading
+document.querySelector("#unity-loading-bar").style.display = "block";
+
+
+// Loader
+var script = document.createElement("script");
+
+// 🔥 Cache-buster no loader também
+script.src =
+  BUILD_FOLDER + "/" + LOADER_FILE + "?v=" + BUILD_VERSION;
+
+
+script.onload = () => {
+
+  createUnityInstance(canvas, config, (progress) => {
+
+    document.querySelector("#unity-progress-bar-full").style.width =
+      (100 * progress) + "%";
+
+  }).then((unityInstance) => {
+
+    document.querySelector("#unity-loading-bar").style.display = "none";
+
+    // Fullscreen automático
+    unityInstance.SetFullscreen(1);
+
+
+    // Botão fullscreen
+    document.querySelector("#unity-fullscreen-button").onclick = () => {
+      unityInstance.SetFullscreen(1);
     };
 
-    // 📱 Mobile config
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      var meta = document.createElement("meta");
-      meta.name = "viewport";
-      meta.content =
-        "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
-      document.getElementsByTagName("head")[0].appendChild(meta);
 
-      document.querySelector("#unity-container").className = "unity-mobile";
-      canvas.className = "unity-mobile";
-    } 
-    // 💻 Desktop
-    else {
-      canvas.style.width = "1920px";
-      canvas.style.height = "1080px";
-    }
+    // Plugin compat
+    gameInstance = unityInstance;
 
-    document.querySelector("#unity-loading-bar").style.display = "block";
 
-    var script = document.createElement("script");
-    script.src = loaderUrl;
+    // Fallback: primeiro clique
+    canvas.addEventListener("click", () => {
 
-    script.onload = () => {
+      if (!document.fullscreenElement && gameInstance) {
+        gameInstance.SetFullscreen(1);
+      }
 
-      createUnityInstance(canvas, config, (progress) => {
+    });
 
-        document.querySelector("#unity-progress-bar-full").style.width =
-          (100 * progress) + "%";
+  }).catch((message) => {
 
-      }).then((unityInstance) => {
+    alert(message);
 
-        document.querySelector("#unity-loading-bar").style.display = "none";
+  });
+};
 
-        // ✅ TENTA FULLSCREEN AUTOMÁTICO
-        unityInstance.SetFullscreen(1);
 
-        document.querySelector("#unity-fullscreen-button").onclick = () => {
-          unityInstance.SetFullscreen(1);
-        };
+document.body.appendChild(script);
 
-        // ✅ Plugin compatibility
-        gameInstance = unityInstance;
+</script>
 
-        // ✅ Fallback: força fullscreen no primeiro clique
-        canvas.addEventListener("click", () => {
-          if (!document.fullscreenElement && gameInstance) {
-            gameInstance.SetFullscreen(1);
-          }
-        });
-
-      }).catch((message) => {
-
-        alert(message);
-
-      });
-    };
-
-    document.body.appendChild(script);
-  </script>
 </body>
 </html>
