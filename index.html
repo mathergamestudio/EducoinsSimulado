@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity Web Player | SimuladoEdu</title>
 
-    <link rel="shortcut icon" href="TemplateData/favicon.ico" />
-    <link rel="stylesheet" href="TemplateData/style.css" />
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
 
+    <!-- ✅ CUSTOM: remove o logo do loading -->
     <style>
       #unity-logo { display: none; }
     </style>
@@ -35,21 +36,23 @@
 
     <script>
       var canvas = document.querySelector("#unity-canvas");
+
+      // ✅ CUSTOM: compatibilidade com plugins (SimpleFileBrowserForWebGL procura isso)
       var gameInstance = null;
 
+      // Unity banner (original)
       function unityShowBanner(msg, type) {
         var warningBanner = document.querySelector("#unity-warning");
         function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? "block" : "none";
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
         }
-        var div = document.createElement("div");
+        var div = document.createElement('div');
         div.innerHTML = msg;
         warningBanner.appendChild(div);
-
-        if (type == "error") div.style = "background: red; padding: 10px;";
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
         else {
-          if (type == "warning") div.style = "background: yellow; padding: 10px;";
-          setTimeout(function () {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
             warningBanner.removeChild(div);
             updateBannerVisibility();
           }, 5000);
@@ -57,40 +60,37 @@
         updateBannerVisibility();
       }
 
-      // ✅ Base automática (funciona em: usuario.github.io e usuario.github.io/repo)
-      var basePath = location.pathname;
-      // remove o "index.html" se estiver no caminho
-      basePath = basePath.replace(/index\.html$/, "");
-      // garante que termina com /
-      if (!basePath.endsWith("/")) basePath += "/";
-
-      // ✅ URLs absolutas com basePath
-      var buildUrl = basePath + "Build";
-      var loaderUrl = buildUrl + "/Edu web.loader";
+      // ✅ MANTÉM O ORIGINAL DA BUILD (não troca nome de nada!)
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/Edu web.loader.js";
 
       var config = {
         arguments: [],
         dataUrl: buildUrl + "/Edu web.data.unityweb",
         frameworkUrl: buildUrl + "/Edu web.framework.js.unityweb",
         codeUrl: buildUrl + "/Edu web.wasm.unityweb",
-        streamingAssetsUrl: basePath + "StreamingAssets",
+        streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "SimuladoEdu",
         productVersion: "1.0",
         showBanner: unityShowBanner,
+
+        // ✅ CUSTOM: nitidez conforme o device
         devicePixelRatio: window.devicePixelRatio
       };
 
-      // 📱 Mobile
+      // Mobile (original)
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        var meta = document.createElement("meta");
-        meta.name = "viewport";
-        meta.content =
-          "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
-        document.getElementsByTagName("head")[0].appendChild(meta);
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
 
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
+
+        // opcional:
+        // config.devicePixelRatio = 1;
       } else {
         canvas.style.width = "1920px";
         canvas.style.height = "1080px";
@@ -103,33 +103,38 @@
 
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
+          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
         })
         .then((unityInstance) => {
           document.querySelector("#unity-loading-bar").style.display = "none";
+
+          // ✅ CUSTOM: salva a instância para plugins
           gameInstance = unityInstance;
 
+          // ✅ CUSTOM: tenta fullscreen automático (pode falhar sem clique do usuário)
           try { unityInstance.SetFullscreen(1); } catch (e) {}
 
+          // ✅ CUSTOM: botão fullscreen
           document.querySelector("#unity-fullscreen-button").onclick = () => {
             unityInstance.SetFullscreen(1);
           };
 
+          // ✅ CUSTOM: fallback fullscreen no primeiro clique no canvas
           canvas.addEventListener("click", () => {
             if (!document.fullscreenElement && gameInstance) {
               gameInstance.SetFullscreen(1);
             }
           });
+
         })
-        .catch((message) => alert(message));
+        .catch((message) => {
+          alert(message);
+        });
       };
 
+      // (opcional) ajuda a debug se der 404 no loader
       script.onerror = () => {
-        alert(
-          "Erro ao carregar o loader.\n\n" +
-          "Tente abrir este link no navegador e veja se dá 404:\n" +
-          loaderUrl
-        );
+        alert("Erro ao carregar o loader: " + loaderUrl);
       };
 
       document.body.appendChild(script);
