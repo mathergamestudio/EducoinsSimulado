@@ -8,7 +8,6 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico" />
     <link rel="stylesheet" href="TemplateData/style.css" />
 
-    <!-- Remove logo do loading -->
     <style>
       #unity-logo { display: none; }
     </style>
@@ -36,39 +35,37 @@
 
     <script>
       var canvas = document.querySelector("#unity-canvas");
-
-      // Compatibilidade com plugins (ex: SimpleFileBrowserForWebGL)
       var gameInstance = null;
 
       function unityShowBanner(msg, type) {
         var warningBanner = document.querySelector("#unity-warning");
-
         function updateBannerVisibility() {
-          warningBanner.style.display =
-            warningBanner.children.length ? "block" : "none";
+          warningBanner.style.display = warningBanner.children.length ? "block" : "none";
         }
-
         var div = document.createElement("div");
         div.innerHTML = msg;
         warningBanner.appendChild(div);
 
-        if (type == "error") {
-          div.style = "background: red; padding: 10px;";
-        } else {
-          if (type == "warning")
-            div.style = "background: yellow; padding: 10px;";
+        if (type == "error") div.style = "background: red; padding: 10px;";
+        else {
+          if (type == "warning") div.style = "background: yellow; padding: 10px;";
           setTimeout(function () {
             warningBanner.removeChild(div);
             updateBannerVisibility();
           }, 5000);
         }
-
         updateBannerVisibility();
       }
 
-      var buildUrl = "Build";
+      // ✅ Base automática (funciona em: usuario.github.io e usuario.github.io/repo)
+      var basePath = location.pathname;
+      // remove o "index.html" se estiver no caminho
+      basePath = basePath.replace(/index\.html$/, "");
+      // garante que termina com /
+      if (!basePath.endsWith("/")) basePath += "/";
 
-      // ⚠️ IMPORTANTE: seu loader NÃO tem .js
+      // ✅ URLs absolutas com basePath
+      var buildUrl = basePath + "Build";
       var loaderUrl = buildUrl + "/Edu web.loader";
 
       var config = {
@@ -76,13 +73,11 @@
         dataUrl: buildUrl + "/Edu web.data.unityweb",
         frameworkUrl: buildUrl + "/Edu web.framework.js.unityweb",
         codeUrl: buildUrl + "/Edu web.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
+        streamingAssetsUrl: basePath + "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "SimuladoEdu",
         productVersion: "1.0",
         showBanner: unityShowBanner,
-
-        // Mantém nitidez conforme dispositivo
         devicePixelRatio: window.devicePixelRatio
       };
 
@@ -96,11 +91,7 @@
 
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
-
-        // Se quiser melhorar performance no mobile:
-        // config.devicePixelRatio = 1;
       } else {
-        // 💻 Desktop
         canvas.style.width = "1920px";
         canvas.style.height = "1080px";
       }
@@ -112,41 +103,32 @@
 
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width =
-            100 * progress + "%";
+          document.querySelector("#unity-progress-bar-full").style.width = (100 * progress) + "%";
         })
-          .then((unityInstance) => {
-            document.querySelector("#unity-loading-bar").style.display = "none";
+        .then((unityInstance) => {
+          document.querySelector("#unity-loading-bar").style.display = "none";
+          gameInstance = unityInstance;
 
-            gameInstance = unityInstance;
+          try { unityInstance.SetFullscreen(1); } catch (e) {}
 
-            // Tenta fullscreen automático
-            try {
-              unityInstance.SetFullscreen(1);
-            } catch (e) {}
+          document.querySelector("#unity-fullscreen-button").onclick = () => {
+            unityInstance.SetFullscreen(1);
+          };
 
-            // Botão fullscreen
-            document.querySelector("#unity-fullscreen-button").onclick =
-              () => {
-                unityInstance.SetFullscreen(1);
-              };
-
-            // Fallback: força fullscreen no primeiro clique
-            canvas.addEventListener("click", () => {
-              if (!document.fullscreenElement && gameInstance) {
-                gameInstance.SetFullscreen(1);
-              }
-            });
-          })
-          .catch((message) => {
-            alert(message);
+          canvas.addEventListener("click", () => {
+            if (!document.fullscreenElement && gameInstance) {
+              gameInstance.SetFullscreen(1);
+            }
           });
+        })
+        .catch((message) => alert(message));
       };
 
       script.onerror = () => {
         alert(
-          "Erro ao carregar o loader. Verifique se o arquivo existe em: " +
-            loaderUrl
+          "Erro ao carregar o loader.\n\n" +
+          "Tente abrir este link no navegador e veja se dá 404:\n" +
+          loaderUrl
         );
       };
 
